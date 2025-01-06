@@ -12,6 +12,9 @@ const nextConfig: NextConfig = {
     ],
     unoptimized: true,
   },
+  // experimental: {
+  //   dynamicIO: true,
+  // },
 };
 
 export default nextConfig;
