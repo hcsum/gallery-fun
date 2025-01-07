@@ -19,7 +19,8 @@ export async function getAlbums(): Promise<
     const command = new ListObjectsV2Command({
       Bucket: bucketName,
       Delimiter: "/",
-      MaxKeys: process.env.NODE_ENV === "development" ? 10 : undefined,
+      // MaxKeys: process.env.NODE_ENV === "development" ? 10 : undefined,
+      MaxKeys: 10,
     });
     const response = await s3Client.send(command);
 
