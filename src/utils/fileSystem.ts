@@ -23,19 +23,25 @@ export async function getAlbums(): Promise<
     });
     const response = await s3Client.send(command);
 
+    // console.log("response.CommonPrefixes", response.CommonPrefixes);
+
     const albums =
       response.CommonPrefixes?.map(
         (prefix) => prefix.Prefix?.split("/")[0] || "",
       ) || [];
 
+    // console.log("albums", albums);
+
     const albumsWithImages = await Promise.all(
       albums.map(async (album) => {
         const { images } = await getAlbumImages(album, 2); // 即使是livephoto，前两张应该会有一张是照片
+        const info = parseAlbumFolderName(album);
         return {
+          // album: `${info.date}_${info.time}_${info.author}`,
           album,
           firstImage:
             images.filter((img) => /\.(jpg|jpeg|png)$/i.test(img))[0] || null,
-          info: parseAlbumFolderName(album),
+          info,
         };
       }),
     );
@@ -55,14 +61,14 @@ export async function getAlbumImages(
   try {
     const command = new ListObjectsV2Command({
       Bucket: bucketName,
-      Prefix: `${decodeURIComponent(album)}/`,
+      Prefix: `${decodeURIComponent(album)}`,
       MaxKeys,
     });
     const response = await s3Client.send(command);
     return {
       images:
-        response.Contents?.map(
-          (item) => item.Key?.split("/").pop() || "",
+        response.Contents?.map((item) =>
+          getImageFullUrl(item.Key || ""),
         ).filter((file) => /\.(jpg|jpeg|png|gif|webp|mp4)$/i.test(file)) || [],
       albumInfo: parseAlbumFolderName(album),
     };
@@ -72,8 +78,8 @@ export async function getAlbumImages(
   }
 }
 
-export function getImagePath(album: string, image: string): string {
-  return `https://${process.env.NEXT_PUBLIC_BUCKET_DOMAIN}/${encodeURIComponent(album)}/${encodeURIComponent(image)}`;
+export function getImageFullUrl(image: string): string {
+  return `https://${process.env.NEXT_PUBLIC_BUCKET_DOMAIN}/${encodeURIComponent(image)}`;
 }
 
 export type AlbumInfo = {

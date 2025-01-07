@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { getAlbums, getImagePath } from "@/utils/fileSystem";
+import { getAlbums } from "@/utils/fileSystem";
 
 export default async function Home() {
   const albums = await getAlbums();
@@ -18,7 +18,7 @@ export default async function Home() {
             <div className="relative w-full overflow-hidden rounded-lg shadow-md bg-gray-100 dark:bg-gray-800 hover:shadow-lg transition-shadow">
               {firstImage?.endsWith(".mp4") ? (
                 <video
-                  src={`${getImagePath(album, firstImage)}`}
+                  src={firstImage}
                   width={500}
                   height={800}
                   className="w-full object-cover group-hover:scale-105 transition-transform"
@@ -26,7 +26,7 @@ export default async function Home() {
                 />
               ) : (
                 <Image
-                  src={`${getImagePath(album, firstImage ?? "")}`}
+                  src={firstImage ?? ""}
                   alt={`${album} cover`}
                   width={500}
                   height={500}

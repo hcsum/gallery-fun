@@ -22,7 +22,7 @@ export default async function AlbumPage({
       <h3 className="text-2xl font-bold break-words">{albumInfo.author}</h3>
       <p className="text-md break-words">{albumInfo.date}</p>
       <p className="text-md break-words mb-8">{albumInfo.time}</p>
-      <AlbumGallery album={decodedAlbum} images={images} />
+      <AlbumGallery images={images} />
     </div>
   );
 }

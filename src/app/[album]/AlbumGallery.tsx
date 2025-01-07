@@ -1,16 +1,9 @@
 "use client"; // Mark this as a client component
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { getImagePath } from "@/utils/fileSystem";
 import LivePhotoIcon from "@/components/LivePhotoIcon";
 
-export default function AlbumGallery({
-  album,
-  images,
-}: {
-  album: string;
-  images: string[];
-}) {
+export default function AlbumGallery({ images }: { images: string[] }) {
   const [featuredImage, setFeaturedImage] = useState(images[0]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [startX, setStartX] = useState<number | null>(null);
@@ -87,7 +80,7 @@ export default function AlbumGallery({
     };
   }, [isModalOpen]);
 
-  const isVideo = (fileName: string) => {
+  const isVideo = (fileName = "") => {
     return fileName.endsWith(".mp4");
   };
 
@@ -100,7 +93,7 @@ export default function AlbumGallery({
             <LivePhotoIcon />
             <video
               className="h-auto max-w-full rounded-lg cursor-pointer"
-              src={getImagePath(album, featuredImage)}
+              src={featuredImage}
               width={500}
               height={800}
               onClick={() => setIsModalOpen(true)}
@@ -112,7 +105,7 @@ export default function AlbumGallery({
         ) : (
           <Image
             className="h-auto max-w-full rounded-lg cursor-pointer"
-            src={getImagePath(album, featuredImage)}
+            src={featuredImage}
             alt={featuredImage}
             width={500}
             height={800}
@@ -136,7 +129,7 @@ export default function AlbumGallery({
                 <LivePhotoIcon small />
                 <video
                   className="h-auto max-w-full rounded-lg"
-                  src={getImagePath(album, image)}
+                  src={image}
                   width={200}
                   height={200}
                 />
@@ -144,7 +137,7 @@ export default function AlbumGallery({
             ) : (
               <Image
                 className="h-auto max-w-full rounded-lg"
-                src={getImagePath(album, image)}
+                src={image}
                 alt={image}
                 width={200}
                 height={200}
@@ -180,7 +173,7 @@ export default function AlbumGallery({
             {isVideo(featuredImage) ? (
               <video
                 className="rounded-lg"
-                src={getImagePath(album, featuredImage)}
+                src={featuredImage}
                 width={800}
                 height={500}
                 autoPlay
@@ -190,7 +183,7 @@ export default function AlbumGallery({
             ) : (
               <Image
                 className="rounded-lg"
-                src={getImagePath(album, featuredImage)}
+                src={featuredImage}
                 alt={featuredImage}
                 width={800}
                 height={500}
