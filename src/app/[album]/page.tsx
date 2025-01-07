@@ -18,7 +18,7 @@ export default async function AlbumPage({
 
   return (
     <div className="container mx-auto p-8">
-      <h1 className="text-3xl font-bold mb-8">{decodedAlbum}</h1>
+      <h1 className="text-3xl font-bold mb-8  break-words">{decodedAlbum}</h1>
       <AlbumGallery album={decodedAlbum} images={images} />
     </div>
   );

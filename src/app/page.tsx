@@ -22,11 +22,9 @@ export default async function Home() {
                 <video
                   src={`${getImagePath(album, firstImage)}`}
                   width={500}
-                  height={500}
-                  className="h-48 w-full object-cover group-hover:scale-105 transition-transform"
-                  controls
+                  height={800}
+                  className="w-full object-cover group-hover:scale-105 transition-transform"
                   muted
-                  loop
                 />
               ) : (
                 <Image
@@ -34,7 +32,7 @@ export default async function Home() {
                   alt={`${album} cover`}
                   width={500}
                   height={500}
-                  className="h-48 w-full object-cover group-hover:scale-105 transition-transform"
+                  className="w-full object-cover group-hover:scale-105 transition-transform"
                   priority={true} // Optimizes above-the-fold images
                 />
               )}

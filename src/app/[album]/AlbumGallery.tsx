@@ -2,6 +2,7 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { getImagePath } from "@/utils/fileSystem";
+import LivePhotoIcon from "@/components/LivePhotoIcon";
 
 export default function AlbumGallery({
   album,
@@ -95,16 +96,19 @@ export default function AlbumGallery({
       {/* Featured Image or Video */}
       <div className="flex justify-center">
         {isVideo(featuredImage) ? (
-          <video
-            className="h-auto max-w-full rounded-lg cursor-pointer"
-            src={getImagePath(album, featuredImage)}
-            width={500}
-            height={300}
-            onClick={() => setIsModalOpen(true)}
-            autoPlay
-            loop
-            muted
-          />
+          <div className="relative">
+            <LivePhotoIcon />
+            <video
+              className="h-auto max-w-full rounded-lg cursor-pointer"
+              src={getImagePath(album, featuredImage)}
+              width={500}
+              height={300}
+              onClick={() => setIsModalOpen(true)}
+              autoPlay
+              loop
+              muted
+            />
+          </div>
         ) : (
           <Image
             className="h-auto max-w-full rounded-lg cursor-pointer"
@@ -128,12 +132,15 @@ export default function AlbumGallery({
             className="cursor-pointer"
           >
             {isVideo(image) ? (
-              <video
-                className="h-auto max-w-full rounded-lg"
-                src={getImagePath(album, image)}
-                width={200}
-                height={200}
-              />
+              <div className="relative">
+                <LivePhotoIcon small />
+                <video
+                  className="h-auto max-w-full rounded-lg"
+                  src={getImagePath(album, image)}
+                  width={200}
+                  height={200}
+                />
+              </div>
             ) : (
               <Image
                 className="h-auto max-w-full rounded-lg"
