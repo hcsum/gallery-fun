@@ -2,6 +2,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { getAlbums } from "@/utils/fileSystem";
 
+// export const runtime = "edge";
+
 export default async function Home() {
   const albums = await getAlbums();
 

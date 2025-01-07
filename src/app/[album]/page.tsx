@@ -1,6 +1,8 @@
 import { getAlbumImages, getAlbums } from "@/utils/fileSystem";
 import AlbumGallery from "./AlbumGallery"; // Import the client component
 
+// export const runtime = "edge";
+
 export async function generateStaticParams() {
   const albums = await getAlbums();
 
