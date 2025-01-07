@@ -30,6 +30,9 @@ export default function RootLayout({
       >
         <BreadCrumb />
         {children}
+        <div className="p-8 mb-12">
+          <hr className="border-dotted" />
+        </div>
       </body>
     </html>
   );

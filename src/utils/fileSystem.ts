@@ -12,7 +12,7 @@ const s3Client = new S3Client({
 const bucketName = process.env.R2_BUCKET_NAME;
 
 export async function getAlbums(): Promise<
-  { album: string; firstImage: string | null }[]
+  { album: string; firstImage: string | null; info: AlbumInfo }[]
 > {
   console.log("getAlbums");
   try {
@@ -30,8 +30,13 @@ export async function getAlbums(): Promise<
 
     const albumsWithImages = await Promise.all(
       albums.map(async (album) => {
-        const images = await getAlbumImages(album, 1); // Get the first image
-        return { album, firstImage: images[0] || null }; // Return album name and first image
+        const { images } = await getAlbumImages(album, 2); // 即使是livephoto，前两张应该会有一张是照片
+        return {
+          album,
+          firstImage:
+            images.filter((img) => /\.(jpg|jpeg|png)$/i.test(img))[0] || null,
+          info: parseAlbumFolderName(album),
+        };
       }),
     );
 
@@ -45,8 +50,8 @@ export async function getAlbums(): Promise<
 export async function getAlbumImages(
   album: string,
   MaxKeys: number | undefined,
-): Promise<string[]> {
-  console.log("getAlbumImages", album);
+): Promise<{ images: string[]; albumInfo: AlbumInfo }> {
+  console.log("getAlbumImages");
   try {
     const command = new ListObjectsV2Command({
       Bucket: bucketName,
@@ -54,17 +59,39 @@ export async function getAlbumImages(
       MaxKeys,
     });
     const response = await s3Client.send(command);
-    return (
-      response.Contents?.map((item) => item.Key?.split("/").pop() || "").filter(
-        (file) => /\.(jpg|jpeg|png|gif|webp|mp4)$/i.test(file),
-      ) || []
-    );
+    return {
+      images:
+        response.Contents?.map(
+          (item) => item.Key?.split("/").pop() || "",
+        ).filter((file) => /\.(jpg|jpeg|png|gif|webp|mp4)$/i.test(file)) || [],
+      albumInfo: parseAlbumFolderName(album),
+    };
   } catch (error) {
     console.error(`Error reading images for ${album}:`, error);
-    return [];
+    throw error;
   }
 }
 
 export function getImagePath(album: string, image: string): string {
   return `https://${process.env.NEXT_PUBLIC_BUCKET_DOMAIN}/${encodeURIComponent(album)}/${encodeURIComponent(image)}`;
+}
+
+export type AlbumInfo = {
+  date: string;
+  time: string;
+  author: string;
+  authorId: string;
+  title: string;
+};
+
+export function parseAlbumFolderName(input: string): AlbumInfo {
+  const [date, time, author, authorId, ...title] = input.split("_");
+
+  return {
+    date,
+    time,
+    author,
+    authorId,
+    title: title.join(),
+  };
 }

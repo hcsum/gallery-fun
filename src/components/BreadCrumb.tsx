@@ -3,6 +3,7 @@
 import React from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
+import { parseAlbumFolderName } from "@/utils/fileSystem";
 
 interface BreadcrumbItem {
   label: string;
@@ -19,7 +20,7 @@ const Breadcrumb: React.FC = () => {
     { label: "Home", href: "/", isCurrent: pathnames.length === 0 },
     ...pathnames.map((value, index) => {
       const href = `${pathnames.slice(0, index + 1).join("/")}`;
-      const label = decodeURIComponent(value);
+      const label = parseAlbumFolderName(decodeURIComponent(value)).title;
       return { label, href, isCurrent: index === pathnames.length - 1 };
     }),
   ];

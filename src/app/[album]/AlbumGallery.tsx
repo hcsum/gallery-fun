@@ -102,7 +102,7 @@ export default function AlbumGallery({
               className="h-auto max-w-full rounded-lg cursor-pointer"
               src={getImagePath(album, featuredImage)}
               width={500}
-              height={300}
+              height={800}
               onClick={() => setIsModalOpen(true)}
               autoPlay
               loop
@@ -115,7 +115,7 @@ export default function AlbumGallery({
             src={getImagePath(album, featuredImage)}
             alt={featuredImage}
             width={500}
-            height={300}
+            height={800}
             onClick={() => setIsModalOpen(true)}
             loading="lazy" // Lazy load featured image
             placeholder="empty" // Add placeholder blur effect

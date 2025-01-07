@@ -5,13 +5,11 @@ import { getAlbums, getImagePath } from "@/utils/fileSystem";
 export default async function Home() {
   const albums = await getAlbums();
 
-  console.log("albums", albums);
-
   return (
     <div className="container mx-auto p-8">
       <h1 className="text-3xl font-bold mb-8 capitalize text-center">Albums</h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {albums.map(({ album, firstImage }) => (
+        {albums.map(({ album, firstImage, info }) => (
           <Link
             key={album}
             href={`${encodeURIComponent(album)}`}
@@ -37,7 +35,13 @@ export default async function Home() {
                 />
               )}
               <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 p-4">
-                <h2 className="text-xl font-semibold text-white">{album}</h2>
+                <h2 className="text-xl font-semibold text-white">
+                  {info.title}
+                </h2>
+                <h2 className="text-xl font-semibold text-white">
+                  {info.author}
+                </h2>
+                <p className="text-white">{info.date}</p>
               </div>
             </div>
           </Link>
