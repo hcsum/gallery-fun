@@ -25,20 +25,18 @@ export async function getAlbums(): Promise<
 
     // console.log("response.CommonPrefixes", response.CommonPrefixes);
 
-    const albums =
-      response.CommonPrefixes?.map(
-        (prefix) => prefix.Prefix?.split("/")[0] || "",
+    const albumInfos =
+      response.CommonPrefixes?.map((prefix) =>
+        parseAlbumFolderName(prefix.Prefix?.split("/")[0] || ""),
       ) || [];
 
     // console.log("albums", albums);
 
     const albumsWithImages = await Promise.all(
-      albums.map(async (album) => {
-        const { images } = await getAlbumImages(album, 2); // 即使是livephoto，前两张应该会有一张是照片
-        const info = parseAlbumFolderName(album);
+      albumInfos.map(async (info) => {
+        const { images } = await getAlbumImages(info.albumPrefix, 2); // 即使是live photo，前两张应该会有一张是照片
         return {
-          // album: `${info.date}_${info.time}_${info.author}`,
-          album,
+          album: info.albumPrefix,
           firstImage:
             images.filter((img) => /\.(jpg|jpeg|png)$/i.test(img))[0] || null,
           info,
@@ -83,6 +81,7 @@ export function getImageFullUrl(image: string): string {
 }
 
 export type AlbumInfo = {
+  albumPrefix: string;
   date: string;
   time: string;
   author: string;
@@ -94,6 +93,7 @@ export function parseAlbumFolderName(input: string): AlbumInfo {
   const [date, time, author, authorId, ...title] = input.split("_");
 
   return {
+    albumPrefix: `${date}_${time}_${author}`,
     date,
     time,
     author,
