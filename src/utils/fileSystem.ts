@@ -36,7 +36,7 @@ export async function getAlbums(): Promise<
       albumInfos.map(async (info) => {
         const { images } = await getAlbumImages(info.albumPrefix, 2); // 即使是live photo，前两张应该会有一张是照片
         return {
-          album: info.albumPrefix,
+          album: info.albumPrefix, // use only the prefix for the album slug to prevent file name too long error when build
           firstImage:
             images.filter((img) => /\.(jpg|jpeg|png)$/i.test(img))[0] || null,
           info,
@@ -63,12 +63,16 @@ export async function getAlbumImages(
       MaxKeys,
     });
     const response = await s3Client.send(command);
+
+    const fullAlbumName = response.Contents?.[0].Key?.split("/").shift();
+    const images =
+      response.Contents?.map((item) => getImageFullUrl(item.Key || "")).filter(
+        (file) => /\.(jpg|jpeg|png|gif|webp|mp4)$/i.test(file),
+      ) || [];
+
     return {
-      images:
-        response.Contents?.map((item) =>
-          getImageFullUrl(item.Key || ""),
-        ).filter((file) => /\.(jpg|jpeg|png|gif|webp|mp4)$/i.test(file)) || [],
-      albumInfo: parseAlbumFolderName(album),
+      images,
+      albumInfo: parseAlbumFolderName(decodeURIComponent(fullAlbumName ?? "")), // get back the fullAlbumName from image path to retain album title
     };
   } catch (error) {
     console.error(`Error reading images for ${album}:`, error);
