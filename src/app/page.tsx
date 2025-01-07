@@ -11,10 +11,11 @@ export default async function Home() {
     <div className="container mx-auto p-8">
       <h1 className="text-3xl font-bold mb-8 capitalize text-center">Albums</h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {albums.map(({ album, firstImage, info }) => (
+        {albums.map(({ firstImage, info }) => (
           <Link
-            key={album}
-            href={`${encodeURIComponent(album)}`}
+            key={info.albumPrefix}
+            href={`${encodeURIComponent(info.albumPrefix)}`}
+            // href={info.albumPrefix}
             className="group block"
           >
             <div className="relative w-full overflow-hidden rounded-lg shadow-md bg-gray-100 dark:bg-gray-800 hover:shadow-lg transition-shadow">
@@ -29,7 +30,7 @@ export default async function Home() {
               ) : (
                 <Image
                   src={firstImage ?? ""}
-                  alt={`${album} cover`}
+                  alt={`${info.title} cover`}
                   width={500}
                   height={500}
                   className="w-full object-cover group-hover:scale-105 transition-transform"

@@ -12,7 +12,7 @@ const s3Client = new S3Client({
 const bucketName = process.env.R2_BUCKET_NAME;
 
 export async function getAlbums(): Promise<
-  { album: string; firstImage: string | null; info: AlbumInfo }[]
+  { firstImage: string | null; info: AlbumInfo }[]
 > {
   console.log("getAlbums");
   try {
@@ -37,7 +37,6 @@ export async function getAlbums(): Promise<
       albumInfos.map(async (info) => {
         const { images } = await getAlbumImages(info.albumPrefix, 2); // 即使是live photo，前两张应该会有一张是照片
         return {
-          album: info.albumPrefix, // use only the prefix for the album slug to prevent file name too long error when build
           firstImage:
             images.filter((img) => /\.(jpg|jpeg|png)$/i.test(img))[0] || null,
           info,
@@ -98,7 +97,7 @@ export function parseAlbumFolderName(input: string): AlbumInfo {
   const [date, time, author, authorId, ...title] = input.split("_");
 
   return {
-    albumPrefix: `${date}_${time}_${author}`,
+    albumPrefix: `${date}_${time}_${author}`, // use only the prefix for the album slug to prevent file name too long error when build
     date,
     time,
     author,

@@ -6,7 +6,9 @@ import AlbumGallery from "./AlbumGallery"; // Import the client component
 export async function generateStaticParams() {
   const albums = await getAlbums();
 
-  return albums.map((al) => ({ album: encodeURIComponent(al.album) })); // tofix: really necessary to encode??
+  return albums.map((al) => ({
+    album: encodeURIComponent(al.info.albumPrefix),
+  })); // tofix: really necessary to encode??
 }
 
 export default async function AlbumPage({
