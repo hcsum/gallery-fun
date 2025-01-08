@@ -19,8 +19,6 @@ export const getAlbums = async (
   albums: { firstImage: string | null; info: AlbumInfo }[];
   nextToken: string | undefined;
 }> => {
-  console.log("getAlbums");
-  console.log("bucket name", bucketName);
   try {
     const command = new ListObjectsV2Command({
       Bucket: bucketName,
