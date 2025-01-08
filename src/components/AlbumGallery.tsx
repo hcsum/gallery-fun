@@ -71,16 +71,25 @@ export default function AlbumGallery({
     }
   };
 
-  useEffect(() => {
-    const preventScroll = (e: TouchEvent) => {
-      e.preventDefault();
-    };
-
-    document.addEventListener("touchmove", preventScroll, { passive: false });
-    return () => {
-      document.removeEventListener("touchmove", preventScroll);
-    };
+  const preventTouchScroll = useCallback((e: TouchEvent) => {
+    e.preventDefault();
   }, []);
+
+  useEffect(() => {
+    if (album) {
+      // Prevent overflow scrolling
+      document.body.style.overflow = "hidden";
+      // Prevent touch scrolling
+      document.addEventListener("touchmove", preventTouchScroll, {
+        passive: false,
+      });
+    }
+
+    return () => {
+      document.body.style.overflow = "";
+      document.removeEventListener("touchmove", preventTouchScroll);
+    };
+  }, [album, preventTouchScroll]);
 
   const close = useCallback(() => {
     setFeaturedImage(undefined);
@@ -116,76 +125,73 @@ export default function AlbumGallery({
   if (!album) return null;
 
   return (
-    <div className="grid gap-4">
-      {
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80"
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-        >
-          <button
-            className="absolute top-4 right-4 text-white text-3xl"
-            onClick={close}
-          >
-            &times;
-          </button>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80"
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+    >
+      <button
+        className="absolute top-4 right-4 text-white text-3xl"
+        onClick={close}
+      >
+        &times;
+      </button>
 
-          <div className="relative w-full">
-            {images.length > 0 && (
-              <button
-                className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white text-3xl z-1"
-                onClick={handlePrevImage}
-              >
-                &#8249;
-              </button>
-            )}
-            {!featuredImage || isLoading ? (
-              <div className="animate-pulse flex items-center justify-center w-full h-80 bg-gray-300 rounded sm:w-96 dark:bg-gray-700">
-                <svg
-                  className="w-10 h-10 text-gray-200 dark:text-gray-600"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="currentColor"
-                  viewBox="0 0 20 18"
-                >
-                  <path d="M18 0H2a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2Zm-5.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm4.376 10.481A1 1 0 0 1 16 15H4a1 1 0 0 1-.895-1.447l3.5-7A1 1 0 0 1 7.468 6a.965.965 0 0 1 .9.5l2.775 4.757 1.546-1.887a1 1 0 0 1 1.618.1l2.541 4a1 1 0 0 1 .028 1.011Z" />
-                </svg>
-              </div>
-            ) : isVideo(featuredImage) ? (
-              <div className="relative w-full h-full">
-                <LivePhotoIcon />
-                <video
-                  className="rounded-lg"
-                  src={featuredImage}
-                  width={800}
-                  height={500}
-                  autoPlay
-                  loop
-                  muted
-                />
-              </div>
-            ) : (
-              <Image
-                className="rounded-lg"
-                src={featuredImage}
-                alt={featuredImage}
-                width={800}
-                height={500}
-                loading="lazy" // Lazy load modal image
-                placeholder="empty" // Add placeholder blur effect
-              />
-            )}
-            {images.length > 0 && (
-              <button
-                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white text-3xl"
-                onClick={handleNextImage}
-              >
-                &#8250;
-              </button>
-            )}
+      <div className="relative">
+        {images.length > 0 && (
+          <button
+            className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white text-3xl z-10"
+            onClick={handlePrevImage}
+          >
+            &#8249;
+          </button>
+        )}
+
+        {!featuredImage || isLoading ? (
+          <div className="animate-pulse flex items-center justify-center w-96 h-96 bg-gray-300 rounded dark:bg-gray-700">
+            <svg
+              className="w-10 h-10 text-gray-200 dark:text-gray-600"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="currentColor"
+              viewBox="0 0 20 18"
+            >
+              <path d="M18 0H2a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2Zm-5.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm4.376 10.481A1 1 0 0 1 16 15H4a1 1 0 0 1-.895-1.447l3.5-7A1 1 0 0 1 7.468 6a.965.965 0 0 1 .9.5l2.775 4.757 1.546-1.887a1 1 0 0 1 1.618.1l2.541 4a1 1 0 0 1 .028 1.011Z" />
+            </svg>
           </div>
-        </div>
-      }
+        ) : isVideo(featuredImage) ? (
+          <div className="relative">
+            <LivePhotoIcon />
+            <video
+              className="rounded-lg md:h-screen w-auto"
+              src={featuredImage}
+              width={400}
+              height={600}
+              autoPlay
+              loop
+              muted
+            />
+          </div>
+        ) : (
+          <Image
+            className="rounded-lg md:h-screen w-auto"
+            src={featuredImage}
+            alt={featuredImage}
+            width={400}
+            height={600}
+            // loading="lazy" // Lazy load modal image
+            // placeholder="empty" // Add placeholder blur effect
+          />
+        )}
+        {images.length > 0 && (
+          <button
+            className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white text-3xl z-1"
+            onClick={handleNextImage}
+          >
+            &#8250;
+          </button>
+        )}
+      </div>
     </div>
   );
 }
