@@ -1,4 +1,5 @@
 import { S3Client, ListObjectsV2Command } from "@aws-sdk/client-s3";
+import { notFound } from "next/navigation";
 
 const s3Client = new S3Client({
   region: "auto",
@@ -11,16 +12,21 @@ const s3Client = new S3Client({
 
 const bucketName = process.env.R2_BUCKET_NAME;
 
-export async function getAlbums(): Promise<
-  { firstImage: string | null; info: AlbumInfo }[]
-> {
+export const getAlbums = async (
+  nextToken?: string,
+  maxKeys: number = 10,
+): Promise<{
+  albums: { firstImage: string | null; info: AlbumInfo }[];
+  nextToken: string | undefined;
+}> => {
   console.log("getAlbums");
+  console.log("bucket name", bucketName);
   try {
     const command = new ListObjectsV2Command({
       Bucket: bucketName,
       Delimiter: "/",
-      // MaxKeys: process.env.NODE_ENV === "development" ? 10 : undefined,
-      MaxKeys: 10,
+      MaxKeys: maxKeys,
+      ContinuationToken: nextToken,
     });
     const response = await s3Client.send(command);
 
@@ -35,7 +41,7 @@ export async function getAlbums(): Promise<
 
     const albumsWithImages = await Promise.all(
       albumInfos.map(async (info) => {
-        const { images } = await getAlbumImages(info.albumPrefix, 2); // 即使是live photo，前两张应该会有一张是照片
+        const { images } = await getAlbumImages(info.albumId, 2); // 即使是live photo，前两张应该会有一张是照片
         return {
           firstImage:
             images.filter((img) => /\.(jpg|jpeg|png)$/i.test(img))[0] || null,
@@ -44,17 +50,20 @@ export async function getAlbums(): Promise<
       }),
     );
 
-    return albumsWithImages;
+    return {
+      albums: albumsWithImages,
+      nextToken: response.NextContinuationToken,
+    };
   } catch (error) {
     console.error("Error reading albums:", error);
-    return [];
+    notFound();
   }
-}
+};
 
-export async function getAlbumImages(
+export const getAlbumImages = async (
   album: string,
   MaxKeys: number | undefined,
-): Promise<{ images: string[]; albumInfo: AlbumInfo }> {
+): Promise<{ images: string[]; albumInfo: AlbumInfo }> => {
   console.log("getAlbumImages");
   try {
     const command = new ListObjectsV2Command({
@@ -72,20 +81,20 @@ export async function getAlbumImages(
 
     return {
       images,
-      albumInfo: parseAlbumFolderName(decodeURIComponent(fullAlbumName ?? "")), // get back the fullAlbumName from image path to retain album title
+      albumInfo: parseAlbumFolderName(decodeURIComponent(fullAlbumName ?? "")),
     };
   } catch (error) {
     console.error(`Error reading images for ${album}:`, error);
-    throw error;
+    notFound();
   }
-}
+};
 
-export function getImageFullUrl(image: string): string {
+function getImageFullUrl(image: string): string {
   return `https://${process.env.NEXT_PUBLIC_BUCKET_DOMAIN}/${encodeURIComponent(image)}`;
 }
 
 export type AlbumInfo = {
-  albumPrefix: string;
+  albumId: string;
   date: string;
   time: string;
   author: string;
@@ -93,11 +102,11 @@ export type AlbumInfo = {
   title: string;
 };
 
-export function parseAlbumFolderName(input: string): AlbumInfo {
-  const [date, time, author, authorId, ...title] = input.split("_");
+function parseAlbumFolderName(input: string): AlbumInfo {
+  const [albumId, date, time, author, authorId, ...title] = input.split("_");
 
   return {
-    albumPrefix: `${date}_${time}_${author}`, // use only the prefix for the album slug to prevent file name too long error when build
+    albumId,
     date,
     time,
     author,
