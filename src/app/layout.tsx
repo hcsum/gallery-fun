@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { GoogleAnalytics } from "@next/third-parties/google";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -29,6 +30,7 @@ export default function RootLayout({
       >
         {/* <BreadCrumb /> */}
         {children}
+        <GoogleAnalytics gaId="G-2SDLL3HWDZ" />
         <div className="p-8 mb-12">
           <hr className="border-dotted" />
         </div>
