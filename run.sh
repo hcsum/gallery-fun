@@ -1,5 +1,7 @@
 #!/bin/bash
 
+git pull
+
 # Check if the Docker image 'gallery-fun' exists
 if [[ "$(docker images -q gallery-fun 2>/dev/null)" != "" ]]; then
   echo "Removing existing image 'gallery-fun'..."
