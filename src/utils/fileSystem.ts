@@ -11,6 +11,7 @@ const s3Client = new S3Client({
 });
 
 const bucketName = process.env.R2_BUCKET_NAME;
+const Prefix = "my-albums/";
 
 export const getAlbums = async (
   nextToken?: string,
@@ -24,6 +25,7 @@ export const getAlbums = async (
       Bucket: bucketName,
       Delimiter: "/",
       MaxKeys: maxKeys,
+      Prefix,
       ContinuationToken: nextToken,
     });
     const response = await s3Client.send(command);
@@ -31,11 +33,11 @@ export const getAlbums = async (
     // console.log("response.CommonPrefixes", response.CommonPrefixes);
 
     const albumInfos =
-      response.CommonPrefixes?.map((prefix) =>
-        parseAlbumFolderName(prefix.Prefix?.split("/")[0] || ""),
+      response.CommonPrefixes?.map(
+        (prefix) => parseAlbumFolderName(prefix.Prefix?.split("/")[1] || ""), // tofix: change 1 back to 0 for normal albums
       ) || [];
 
-    // console.log("albums", albums);
+    // console.log("albums", albumInfos);
 
     const albumsWithImages = await Promise.all(
       albumInfos.map(async (info) => {
@@ -66,7 +68,7 @@ export const getAlbumImages = async (
   try {
     const command = new ListObjectsV2Command({
       Bucket: bucketName,
-      Prefix: `${decodeURIComponent(album)}`,
+      Prefix: `${Prefix}${decodeURIComponent(album)}`,
       MaxKeys,
     });
     const response = await s3Client.send(command);
