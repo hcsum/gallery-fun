@@ -1,12 +1,19 @@
 #!/bin/bash
 
-# Check if the Docker image 'gallery-fun' exists
-if [[ "$(docker images -q gallery-fun 2>/dev/null)" == "" ]]; then
-  echo "Image 'gallery-fun' does not exist. Building the image..."
-  docker build -t gallery-fun .
-else
-  echo "Image 'gallery-fun' already exists. Skipping build."
+# Check if the Docker container 'gallery-fun' exists
+if [[ "$(docker ps -aq -f name=gallery-fun)" ]]; then
+  echo "Removing existing container 'gallery-fun'..."
+  docker rm -f gallery-fun
 fi
+
+# Check if the Docker image 'gallery-fun' exists
+if [[ "$(docker images -q gallery-fun 2>/dev/null)" != "" ]]; then
+  echo "Removing existing image 'gallery-fun'..."
+  docker rmi -f gallery-fun
+fi
+
+echo "Building the image 'gallery-fun'..."
+docker build -t gallery-fun .
 
 # Run the Docker container with port mapping
 docker run -d \
